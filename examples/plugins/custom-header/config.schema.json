@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "header_name": {
+      "type": "string",
+      "default": "X-Apify-Plugin"
+    },
+    "header_value": {
+      "type": "string",
+      "default": "enabled"
+    }
+  },
+  "additionalProperties": false
+}

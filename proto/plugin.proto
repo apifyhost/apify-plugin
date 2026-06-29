@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package apify.plugin.v1;
+
+service PluginRuntime {
+  rpc Describe(DescribeRequest) returns (DescribeResponse);
+  rpc ValidateConfig(ValidateConfigRequest) returns (ValidateConfigResponse);
+  rpc Start(StartRequest) returns (StartResponse);
+  rpc Execute(ExecuteRequest) returns (ExecuteResponse);
+  rpc Stop(StopRequest) returns (StopResponse);
+  rpc Health(HealthRequest) returns (HealthResponse);
+}
+
+message DescribeRequest {}
+
+message DescribeResponse {
+  bytes descriptor_json = 1;
+}
+
+message ValidateConfigRequest {
+  string organization_id = 1;
+  string plugin_name = 2;
+  string plugin_version = 3;
+  bytes config_json = 4;
+  map<string, string> secret_refs = 5;
+}
+
+message ValidateConfigResponse {
+  bool valid = 1;
+  string error_code = 2;
+  string error_msg = 3;
+  bytes error_params_json = 4;
+}
+
+message StartRequest {
+  string instance_id = 1;
+  bytes runtime_config_json = 2;
+}
+
+message StartResponse {
+  bool ready = 1;
+  string error_code = 2;
+  string error_msg = 3;
+}
+
+message ExecuteRequest {
+  string request_id = 1;
+  string phase = 2;
+  string execution_kind = 3;
+  bytes context_json = 4;
+  bytes config_json = 5;
+  map<string, string> secret_values = 6;
+}
+
+message ExecuteResponse {
+  string decision = 1;
+  int32 status_code = 2;
+  map<string, string> headers = 3;
+  bytes body = 4;
+  string error_code = 5;
+  string error_msg = 6;
+  bytes error_params_json = 7;
+  bytes vars_patch_json = 8;
+  bytes async_log_attrs_json = 9;
+}
+
+message StopRequest {
+  string instance_id = 1;
+  string reason = 2;
+}
+
+message StopResponse {}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+  string message = 2;
+}

@@ -1,0 +1,18 @@
+apiVersion: apify.apifyhost.com/v1alpha1
+kind: Plugin
+metadata:
+  name: custom-header
+  version: 1.0.0
+  displayName: Custom Header
+  description: Adds a configured response header.
+spec:
+  runtime: external_process
+  sdkVersion: ">=0.1.0 <0.2.0"
+  protocol: http-json-v1
+  entrypoint: ./custom-header
+  phases:
+    - response
+  capabilities:
+    - http_response
+  configSchema: ./config.schema.json
+  secretSchema: ./secret.schema.json
