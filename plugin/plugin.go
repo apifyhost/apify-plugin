@@ -205,12 +205,29 @@ type ExecuteResponse struct {
 }
 
 func Serve(p Plugin) error {
+	handler, err := newHandler(p)
+	if err != nil {
+		return err
+	}
+	addr := os.Getenv("APIFY_PLUGIN_ADDR")
+	if addr == "" {
+		addr = "127.0.0.1:0"
+	}
+	server := &http.Server{
+		Addr:              addr,
+		Handler:           handler,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+	return server.ListenAndServe()
+}
+
+func newHandler(p Plugin) (http.Handler, error) {
 	if p == nil {
-		return errors.New("plugin is nil")
+		return nil, errors.New("plugin is nil")
 	}
 	descriptor := p.Descriptor()
 	if descriptor.Name == "" || descriptor.Version == "" {
-		return errors.New("plugin descriptor requires name and version")
+		return nil, errors.New("plugin descriptor requires name and version")
 	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
@@ -256,16 +273,7 @@ func Serve(p Plugin) error {
 		}
 		writeJSON(w, http.StatusOK, ExecuteResponse{Result: result})
 	})
-	addr := os.Getenv("APIFY_PLUGIN_ADDR")
-	if addr == "" {
-		addr = "127.0.0.1:0"
-	}
-	server := &http.Server{
-		Addr:              addr,
-		Handler:           mux,
-		ReadHeaderTimeout: 5 * time.Second,
-	}
-	return server.ListenAndServe()
+	return mux, nil
 }
 
 func writeJSON(w http.ResponseWriter, status int, value any) {
